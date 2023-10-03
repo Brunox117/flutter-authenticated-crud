@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:teslo_shop/features/auth/presentation/providers/login_form_provider.dart';
 import 'package:teslo_shop/features/shared/shared.dart';
 
+import '../providers/auth_provider.dart';
+
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
@@ -49,11 +51,21 @@ class LoginScreen extends StatelessWidget {
 
 class _LoginForm extends ConsumerWidget {
   const _LoginForm();
+  void showSnackbar (BuildContext context,String message){
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message))
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final loginForm = ref.watch(loginFormProvider);
 
+    final loginForm = ref.watch(loginFormProvider);
+    ref.listen(authProvider, (previous, next) {
+      if(next.errorMessage.isEmpty) return;
+      showSnackbar(context, next.errorMessage);
+     });
     final textStyles = Theme.of(context).textTheme;
 
     return Padding(
