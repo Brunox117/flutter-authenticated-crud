@@ -67,24 +67,26 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
 
   onFormSubmit() async {
     _touchEveryField();
-    if(!state.isValid){}
+    if (!state.isValid) return;
+    state = state.copyWith(isPosting: true);
     await loginUserCallback(state.email.value, state.password.value);
+    state = state.copyWith(isPosting: false);
   }
 
   _touchEveryField() {
     final email = Email.dirty(state.email.value);
     final password = Password.dirty(state.password.value);
     state = state.copyWith(
-      email: email,
-      password: password,
-      isFormPosted: true,
-      isValid: Formz.validate([email, password])
-    );
+        email: email,
+        password: password,
+        isFormPosted: true,
+        isValid: Formz.validate([email, password]));
   }
 }
 
 //! 3 - Como consumir este provider StateNotifierProvider
-final loginFormProvider = StateNotifierProvider.autoDispose<LoginFormNotifier, LoginFormState>((ref) {
+final loginFormProvider =
+    StateNotifierProvider.autoDispose<LoginFormNotifier, LoginFormState>((ref) {
   final loginUserCallback = ref.watch(authProvider.notifier).loginUser;
   return LoginFormNotifier(loginUserCallback: loginUserCallback);
 });

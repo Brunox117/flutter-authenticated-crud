@@ -51,21 +51,19 @@ class LoginScreen extends StatelessWidget {
 
 class _LoginForm extends ConsumerWidget {
   const _LoginForm();
-  void showSnackbar (BuildContext context,String message){
+  void showSnackbar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message))
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     final loginForm = ref.watch(loginFormProvider);
     ref.listen(authProvider, (previous, next) {
-      if(next.errorMessage.isEmpty) return;
+      if (next.errorMessage.isEmpty) return;
       showSnackbar(context, next.errorMessage);
-     });
+    });
     final textStyles = Theme.of(context).textTheme;
 
     return Padding(
@@ -84,6 +82,7 @@ class _LoginForm extends ConsumerWidget {
           ),
           const SizedBox(height: 30),
           CustomTextFormField(
+            onFieldSubmitted: (_) => ref.read(loginFormProvider.notifier).onFormSubmit(),
             label: 'Contraseña',
             obscureText: true,
             onChanged: ref.read(loginFormProvider.notifier).onPasswordChange,
@@ -97,9 +96,11 @@ class _LoginForm extends ConsumerWidget {
               child: CustomFilledButton(
                 text: 'Ingresar',
                 buttonColor: Colors.black,
-                onPressed: () {
-                  ref.read(loginFormProvider.notifier).onFormSubmit();
-                },
+                onPressed: loginForm.isPosting
+                    ? null
+                    : () {
+                        ref.read(loginFormProvider.notifier).onFormSubmit();
+                      },
               )),
           const Spacer(flex: 2),
           Row(
